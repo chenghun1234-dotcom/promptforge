@@ -1,17 +1,151 @@
 ---
-
+import Layout from '../layouts/Layout.astro';
+const modules = import.meta.glob('../content/prompts/*.md', { eager: true });
+const entries = Object.entries(modules).map(([path, mod]: [string, any]) => {
+	const slug = path.split('/').pop()?.replace(/\.md$/, '') ?? 'untitled';
+	return { slug, data: mod.frontmatter, Content: mod.Content };
+});
+const featured = entries
+	.slice()
+	.sort((a, b) => {
+		const aTime = a.data?.date ? new Date(a.data.date).getTime() : 0;
+		const bTime = b.data?.date ? new Date(b.data.date).getTime() : 0;
+		return bTime - aTime;
+	})
+	.slice(0, 9);
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout
+	title="PromptForge | Pro AI Asset Vault"
+	description="Engineered prompts and guides for high-value digital assets."
+>
+	<main class="relative min-h-screen overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-[#0a0f1c] to-black p-8 text-slate-100">
+		<div class="pointer-events-none absolute left-[-10%] top-[-10%] h-96 w-96 animate-float rounded-full bg-green-500/20 blur-[120px]"></div>
+		<div class="pointer-events-none absolute bottom-[10%] right-[-10%] h-96 w-96 animate-float rounded-full bg-cyan-500/20 blur-[120px]"></div>
+
+		<section class="relative z-10 mx-auto max-w-6xl py-24 text-center">
+			<div class="mb-6 inline-block animate-pulse rounded-full border border-green-500/30 bg-green-500/10 px-4 py-1.5 text-xs font-bold tracking-widest text-green-400 backdrop-blur-md">
+				SYSTEM ONLINE: {entries.length.toLocaleString()} PROMPTS FORGED
+			</div>
+			<h1 class="mb-6 animate-text-glow bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-6xl font-black tracking-tight text-transparent md:text-7xl">
+				PROMPT FORGE
+			</h1>
+			<p class="mb-10 text-xl font-light text-slate-400 md:text-2xl">
+				Industrial-Grade AI Prompts for <span class="font-semibold text-white">Asset Monetization</span>
+			</p>
+
+			<div class="group relative mx-auto max-w-2xl">
+				<div class="absolute -inset-1 rounded-full bg-gradient-to-r from-green-400 to-cyan-400 blur opacity-25 transition duration-1000 group-hover:opacity-50 group-hover:duration-200"></div>
+				<input
+					type="text"
+					placeholder="Search parameters (e.g., 'Zepeto Y2K', 'Unreal Engine 5')..."
+					aria-label="Search prompts"
+					class="relative w-full rounded-full border border-slate-700 bg-slate-900/80 px-8 py-5 text-lg shadow-2xl backdrop-blur-xl transition-all placeholder-slate-500 focus:border-green-400 focus:outline-none"
+				/>
+			</div>
+		</section>
+
+		<section class="relative z-10 mx-auto mt-10 max-w-6xl">
+			<div class="mb-8 flex items-end justify-between border-b border-slate-800 pb-4">
+				<h2 class="flex items-center gap-3 text-2xl font-bold md:text-3xl">
+					<span class="h-8 w-3 rounded-sm bg-green-400"></span>
+					Today's Premium Forge
+				</h2>
+				<a href="#" class="text-sm text-cyan-400 transition-colors hover:text-cyan-300">
+					View All Archive →
+				</a>
+			</div>
+
+			<div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+				{
+					featured.length > 0
+						? featured.map((entry) => (
+								<a
+									href={`/prompts/${entry.slug}`}
+									class="group relative block overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 shadow-xl backdrop-blur-sm transition-all duration-500 hover:-translate-y-2 hover:border-green-400/50 hover:shadow-[0_0_30px_rgba(74,222,128,0.15)]"
+								>
+									<div class="relative h-56 overflow-hidden">
+										<img
+											src={
+												entry.data?.image ??
+												'https://via.placeholder.com/600x420/0f172a/666666?text=PromptForge'
+											}
+											alt={entry.data?.title ?? 'Prompt'}
+											class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+											loading="lazy"
+										/>
+										<div class="absolute left-3 top-3 rounded border border-green-400/30 bg-black/70 px-2 py-1 font-mono text-xs font-bold text-green-400 backdrop-blur-md">
+											{entry.data?.model ?? 'LLM Forge'}
+										</div>
+										<div class="absolute right-3 top-3 rounded bg-blue-500/80 px-2 py-1 text-xs font-bold text-white backdrop-blur-md">
+											Featured
+										</div>
+									</div>
+
+									<div class="p-6">
+										<h4 class="mb-2 text-xl font-bold text-white transition-colors group-hover:text-green-400">
+											{entry.data?.title ?? 'Prompt'}
+										</h4>
+										<p class="text-sm text-slate-400">
+											{entry.data?.description ?? 'Open to view details'}
+										</p>
+
+										<div class="mt-5 flex items-center justify-between gap-3 rounded-xl border border-slate-800 bg-black/60 p-3">
+											<code class="min-w-0 flex-1 truncate font-mono text-xs text-slate-400">
+												{entry.data?.prompt ?? 'No prompt snippet'}
+											</code>
+											<button
+												type="button"
+												class="shrink-0 rounded-lg bg-slate-800 px-2 py-1 text-xs text-slate-100 transition-colors hover:bg-slate-700 disabled:opacity-40"
+												data-copy={entry.data?.prompt ?? ''}
+												disabled={!entry.data?.prompt}
+											>
+												Copy
+											</button>
+										</div>
+									</div>
+								</a>
+						  ))
+						: [
+								<div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 shadow-xl backdrop-blur-sm">
+									<img
+										src="https://via.placeholder.com/600x420/0f172a/666666?text=PromptForge"
+										alt="PromptForge placeholder"
+										class="h-56 w-full object-cover"
+										loading="lazy"
+									/>
+									<div class="p-6">
+										<span class="font-mono text-xs text-green-400">LLM Forge</span>
+										<h4 class="mt-2 text-xl font-bold text-white">Your first forged prompt will appear here</h4>
+										<p class="mt-2 text-sm text-slate-400">Run the auto_forge script to generate posts.</p>
+									</div>
+								</div>,
+						  ]
+				}
+			</div>
+		</section>
+	</main>
+</Layout>
+
+<script>
+	document.addEventListener('click', async (event) => {
+		const target = event.target;
+		if (!(target instanceof HTMLButtonElement)) return;
+		const text = target.dataset.copy;
+		if (!text) return;
+		event.preventDefault();
+		try {
+			await navigator.clipboard.writeText(text);
+			const originalText = target.textContent ?? 'Copy';
+			target.textContent = 'Copied';
+			window.setTimeout(() => {
+				target.textContent = originalText;
+			}, 1200);
+		} catch {
+			target.textContent = 'Failed';
+			window.setTimeout(() => {
+				target.textContent = 'Copy';
+			}, 1200);
+		}
+	});
+</script>
