@@ -1,6 +1,7 @@
 import os
 import re
 import time
+import requests
 from datetime import datetime, timezone
 
 from groq import Groq
@@ -228,6 +229,113 @@ def ensure_frontmatter(content: str, topic: str, model: str) -> str:
 	return "\n".join(fm_lines) + (body if body else content.lstrip())
 
 
+def fetch_top_ai_assets() -> list[dict]:
+	url = "https://civitai.com/api/v1/images?limit=10&sort=Most%20Reactions&period=Day"
+	headers = {"User-Agent": "PromptForge-Bot/1.0"}
+	try:
+		resp = requests.get(url, headers=headers, timeout=30)
+		if resp.status_code != 200:
+			return []
+		data = resp.json()
+		items = data.get("items", [])
+		results: list[dict] = []
+		for item in items:
+			meta = item.get("meta") or {}
+			prompt = meta.get("prompt")
+			neg = meta.get("negativePrompt", "")
+			sampler = meta.get("sampler", "Euler a")
+			cfg = meta.get("cfgScale", 7)
+			steps = meta.get("steps", 20)
+			image_url = item.get("url")
+			if prompt and image_url:
+				results.append(
+					{
+						"image_url": image_url,
+						"prompt": str(prompt)[:1000],
+						"negative_prompt": str(neg)[:600],
+						"sampler": str(sampler),
+						"cfg_scale": cfg,
+						"steps": steps,
+					}
+				)
+			if len(results) >= 3:
+				break
+		return results
+	except Exception:
+		return []
+
+
+def generate_pro_markdown(client: Groq, asset: dict) -> str:
+	now_date = datetime.now(timezone.utc).date().isoformat()
+	system_prompt = (
+		f"You are an elite AI Prompt Engineer and Digital Asset Monetization Expert.\n"
+		f"I will give you raw generation data. Convert it into a highly professional markdown post for 'PromptForge'.\n\n"
+		f"Raw Data:\n"
+		f"- Image URL: {asset.get('image_url','')}\n"
+		f"- Prompt: {asset.get('prompt','')}\n"
+		f"- Negative Prompt: {asset.get('negative_prompt','')}\n"
+		f"- Settings: Sampler: {asset.get('sampler','')}, CFG: {asset.get('cfg_scale','')}, Steps: {asset.get('steps','')}\n\n"
+		f"Output Format (Strictly follow this Markdown structure):\n"
+		f"---\n"
+		f'title: "[Catchy SEO Title based on the prompt style]"\n'
+		f'date: "{now_date}"\n'
+		f'image: "{asset.get("image_url","")}"\n'
+		f'tags: ["AI Asset", "Prompt", "Monetization"]\n'
+		f"---\n\n"
+		f"## 🎯 Asset Overview\n"
+		f"[Write 2-3 sentences explaining why this style is highly profitable right now (e.g., Zepeto, Stock Photo, Game UI)]\n\n"
+		f"## ⚙️ The Forge (Prompt & Settings)\n"
+		f"**Core Prompt:** ```text\n{asset.get('prompt','')}\n```\n\n"
+		f"**Negative Prompt:**\n```text\n{asset.get('negative_prompt','')}\n```\n\n"
+		f"| Setting | Value |\n|---|---|\n"
+		f"| Sampler | {asset.get('sampler','')} |\n"
+		f"| CFG Scale | {asset.get('cfg_scale','')} |\n"
+		f"| Steps | {asset.get('steps','')} |\n\n"
+		f"## 💰 Monetization Strategy\n"
+		f"[Provide 1 actionable tip on how to sell images generated with this prompt on platforms like Adobe Stock, Unity Asset Store, or Zepeto]\n"
+	)
+
+	model = os.environ.get("GROQ_MODEL", DEFAULT_MODEL)
+	temperature = float(os.environ.get("GROQ_TEMPERATURE", "0.7"))
+	max_retries = int(os.environ.get("GROQ_MAX_RETRIES", "3"))
+	default_wait = float(os.environ.get("GROQ_RETRY_DEFAULT_SECONDS", "150"))
+
+	def parse_wait_seconds(message: str) -> float:
+		m = re.search(r"Please try again in (?:(\d+)m)?([0-9.]+)s", message)
+		if m:
+			mins = float(m.group(1) or 0)
+			secs = float(m.group(2) or 0)
+			return mins * 60 + secs
+		return default_wait
+
+	for _ in range(max_retries):
+		try:
+			chat_completion = client.chat.completions.create(
+				model=model,
+				messages=[{"role": "user", "content": system_prompt}],
+				temperature=temperature,
+			)
+			return chat_completion.choices[0].message.content
+		except Exception as e:
+			msg = str(e)
+			if "rate_limit" in msg or "Rate limit" in msg or "429" in msg:
+				wait = parse_wait_seconds(msg)
+				print(f"Rate limited. Waiting {wait:.1f}s before retry.")
+				time.sleep(wait)
+				continue
+			raise
+	raise RuntimeError("Failed to generate due to rate limits")
+
+
+def filename_from_content(content: str) -> str:
+	m = re.search(r'^\s*title\s*:\s*"(.*?)"\s*$', content, re.MULTILINE)
+	if m:
+		title = m.group(1).strip()
+		slug = slugify(title)
+		return slug or f"forge-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
+	return f"forge-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
+
+
 def save_to_content(content: str, filename: str) -> str:
 	project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 	path = os.path.join(project_root, "src", "content", "prompts", f"{filename}.md")
@@ -246,15 +354,26 @@ def main() -> None:
 	model = os.environ.get("GROQ_MODEL", DEFAULT_MODEL)
 	client = Groq(api_key=api_key)
 
-	topics = get_trending_topics()
-	for index, topic in enumerate(topics):
-		slug = slugify(topic)
-		post_content = generate_pro_post(client, topic)
-		post_content = ensure_frontmatter(post_content, topic, model)
-		output_path = save_to_content(post_content, slug)
-		print(f"Successfully forged: {output_path}")
-		if index != len(topics) - 1:
-			time.sleep(sleep_seconds)
+	assets = fetch_top_ai_assets()
+	if assets:
+		for index, asset in enumerate(assets):
+			post_content = generate_pro_markdown(client, asset)
+			post_content = ensure_frontmatter(post_content, "PromptForge", model)
+			filename = filename_from_content(post_content)
+			output_path = save_to_content(post_content, filename)
+			print(f"Successfully forged: {output_path}")
+			if index != len(assets) - 1:
+				time.sleep(sleep_seconds)
+	else:
+		topics = get_trending_topics()
+		for index, topic in enumerate(topics):
+			slug = slugify(topic)
+			post_content = generate_pro_post(client, topic)
+			post_content = ensure_frontmatter(post_content, topic, model)
+			output_path = save_to_content(post_content, slug)
+			print(f"Successfully forged: {output_path}")
+			if index != len(topics) - 1:
+				time.sleep(sleep_seconds)
 
 
 if __name__ == "__main__":
