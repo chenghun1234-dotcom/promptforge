@@ -229,7 +229,7 @@ def ensure_frontmatter(content: str, topic: str, model: str) -> str:
 	return "\n".join(fm_lines) + (body if body else content.lstrip())
 
 
-def fetch_top_ai_assets() -> list[dict]:
+def fetch_top_ai_assets(limit: int = 1) -> list[dict]:
 	url = "https://civitai.com/api/v1/images?limit=10&sort=Most%20Reactions&period=Day"
 	headers = {"User-Agent": "PromptForge-Bot/1.0"}
 	try:
@@ -258,7 +258,7 @@ def fetch_top_ai_assets() -> list[dict]:
 						"steps": steps,
 					}
 				)
-			if len(results) >= 3:
+			if len(results) >= max(limit, 1):
 				break
 		return results
 	except Exception:
@@ -352,26 +352,27 @@ def main() -> None:
 
 	sleep_seconds = float(os.environ.get("GROQ_SLEEP_SECONDS", "10"))
 	model = os.environ.get("GROQ_MODEL", DEFAULT_MODEL)
+	items_per_run = int(os.environ.get("FORGE_ITEMS_PER_RUN", "1"))
 	client = Groq(api_key=api_key)
 
-	assets = fetch_top_ai_assets()
+	assets = fetch_top_ai_assets(limit=items_per_run)
 	if assets:
 		for index, asset in enumerate(assets):
 			post_content = generate_pro_markdown(client, asset)
 			post_content = ensure_frontmatter(post_content, "PromptForge", model)
 			filename = filename_from_content(post_content)
 			output_path = save_to_content(post_content, filename)
-			print(f"Successfully forged: {output_path}")
+			print(f"Successfully generated: {output_path}")
 			if index != len(assets) - 1:
 				time.sleep(sleep_seconds)
 	else:
-		topics = get_trending_topics()
+		topics = get_trending_topics()[: max(items_per_run, 1)]
 		for index, topic in enumerate(topics):
 			slug = slugify(topic)
 			post_content = generate_pro_post(client, topic)
 			post_content = ensure_frontmatter(post_content, topic, model)
 			output_path = save_to_content(post_content, slug)
-			print(f"Successfully forged: {output_path}")
+			print(f"Successfully generated: {output_path}")
 			if index != len(topics) - 1:
 				time.sleep(sleep_seconds)
 
