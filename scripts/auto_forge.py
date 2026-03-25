@@ -78,44 +78,154 @@ def slugify(value: str) -> str:
 
 
 def ensure_frontmatter(content: str, topic: str, model: str) -> str:
-	if content.lstrip().startswith("---"):
-		lines = content.splitlines()
-		fm_start = 0
-		fm_end = None
-		for i in range(1, len(lines)):
-			if lines[i].strip() == "---":
-				fm_end = i
-				break
-		if fm_end is None:
-			pass
-		else:
-			now = datetime.now(timezone.utc).isoformat()
-			found_date = False
-			for i in range(fm_start + 1, fm_end):
-				if re.match(r"^\s*date\s*:", lines[i]):
-					lines[i] = f'date: "{now}"'
-					found_date = True
-					break
-			if not found_date:
-				lines.insert(fm_end, f'date: "{now}"')
-				fm_end += 1
-			return "\n".join(lines)
+	keys = [
+		"title",
+		"description",
+		"date",
+		"tags",
+		"model",
+		"prompt",
+		"negativePrompt",
+		"sampler",
+		"cfg",
+		"steps",
+		"monetizationTip",
+		"image",
+	]
 
 	def escape(value: str) -> str:
 		return value.replace("\\", "\\\\").replace('"', '\\"')
 
-	title = topic.strip() or "PromptForge"
+	def unquote(value: str) -> str:
+		value = value.strip()
+		if len(value) >= 2 and ((value[0] == value[-1] == '"') or (value[0] == value[-1] == "'")):
+			return value[1:-1].strip()
+		return value
+
+	def normalize_scalar(value: str) -> str:
+		value = unquote(value)
+		value = re.sub(r"\s+", " ", value.replace("\r", " ").replace("\n", " ")).strip()
+		return value
+
+	def normalize_frontmatter_text(text: str) -> str:
+		for k in keys:
+			text = re.sub(rf"(?<!^)(?<!\n)\b{re.escape(k)}\s*:", f"\n{k}:", text)
+		return text
+
+	def parse_frontmatter(text: str) -> dict:
+		text = normalize_frontmatter_text(text)
+		positions: list[tuple[int, str, int]] = []
+		for k in keys:
+			m = re.search(rf"(?m)^\s*{re.escape(k)}\s*:\s*", text)
+			if m:
+				positions.append((m.start(), k, m.end()))
+		positions.sort(key=lambda x: x[0])
+		data: dict = {}
+		for idx, (start, k, end) in enumerate(positions):
+			next_start = positions[idx + 1][0] if idx + 1 < len(positions) else len(text)
+			raw = text[end:next_start].strip()
+			if k == "tags":
+				lines = [ln.rstrip() for ln in raw.splitlines() if ln.strip()]
+				tags: list[str] = []
+				for ln in lines:
+					m_tag = re.match(r"^\s*-\s*(.+?)\s*$", ln)
+					if m_tag:
+						tags.append(normalize_scalar(m_tag.group(1)))
+				if not tags:
+					raw_inline = normalize_scalar(raw)
+					if raw_inline.startswith("[") and raw_inline.endswith("]"):
+						inner = raw_inline[1:-1].strip()
+						if inner:
+							tags = [normalize_scalar(x) for x in inner.split(",") if x.strip()]
+				data[k] = tags
+				continue
+			data[k] = normalize_scalar(raw)
+		return data
+
+	def split_frontmatter_and_body(full: str) -> tuple[str | None, str]:
+		if not full.lstrip().startswith("---"):
+			return None, full
+		lines = full.splitlines()
+		if not lines:
+			return None, full
+		start = None
+		for i in range(len(lines)):
+			if lines[i].strip() == "---":
+				start = i
+				break
+		if start is None:
+			return None, full
+		end = None
+		for i in range(start + 1, len(lines)):
+			if lines[i].strip() == "---":
+				end = i
+				break
+		if end is None:
+			return None, full
+		fm = "\n".join(lines[start + 1 : end]).strip()
+		body = "\n".join(lines[end + 1 :]).lstrip()
+		return fm, body
+
 	now = datetime.now(timezone.utc).isoformat()
-	fm = (
-		"---\n"
-		f'title: "{escape(title)}"\n'
-		f'description: "Forged prompt guide for {escape(title)}"\n'
-		f'date: "{now}"\n'
-		"tags: []\n"
-		f'model: "{model}"\n'
-		"---\n\n"
+	title = topic.strip() or "PromptForge"
+	existing_fm, body = split_frontmatter_and_body(content)
+	parsed = parse_frontmatter(existing_fm) if existing_fm is not None else {}
+
+	tags_value = parsed.get("tags", [])
+	if not isinstance(tags_value, list):
+		tags_value = []
+
+	def quote(value: str) -> str:
+		return f'"{escape(value)}"'
+
+	cfg_value = parsed.get("cfg")
+	steps_value = parsed.get("steps")
+	try:
+		cfg_num = float(cfg_value) if cfg_value is not None and str(cfg_value).strip() != "" else None
+	except ValueError:
+		cfg_num = None
+	try:
+		steps_num = int(float(steps_value)) if steps_value is not None and str(steps_value).strip() != "" else None
+	except ValueError:
+		steps_num = None
+
+	model_value = parsed.get("model") or model
+	prompt_value = parsed.get("prompt") or ""
+	neg_value = parsed.get("negativePrompt") or ""
+	sampler_value = parsed.get("sampler") or ""
+	desc_value = parsed.get("description") or f"Forged prompt guide for {title}"
+	mon_value = parsed.get("monetizationTip") or ""
+	image_value = parsed.get("image") or ""
+
+	fm_lines = [
+		"---",
+		f"title: {quote(parsed.get('title') or title)}",
+		f"description: {quote(desc_value)}",
+		f'date: "{now}"',
+		"tags:",
+	]
+	for tag in tags_value:
+		if isinstance(tag, str) and tag.strip():
+			fm_lines.append(f"  - {tag}")
+	fm_lines.extend(
+		[
+			f"model: {quote(str(model_value))}",
+			f"prompt: {quote(str(prompt_value))}",
+			f"negativePrompt: {quote(str(neg_value))}",
+			f"sampler: {quote(str(sampler_value))}",
+		]
 	)
-	return fm + content
+	if cfg_num is not None:
+		fm_lines.append(f"cfg: {cfg_num}")
+	if steps_num is not None:
+		fm_lines.append(f"steps: {steps_num}")
+	fm_lines.append(f"monetizationTip: {quote(str(mon_value))}")
+	if str(image_value).strip():
+		fm_lines.append(f"image: {quote(str(image_value))}")
+	fm_lines.append("---")
+	fm_lines.append("")
+
+	return "\n".join(fm_lines) + (body if body else content.lstrip())
 
 
 def save_to_content(content: str, filename: str) -> str:

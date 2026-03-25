@@ -1,6 +1,6 @@
 ---
-title: Creating Cyberpunk Cyberwear for Zepeto: A Professional AI Guide
-description: Learn how to generate and sell unique cyberpunk-themed digital assets for Zepeto using AI prompts.
+title: "Creating Cyberpunk Cyberwear for Zepeto: A Professional AI Guide"
+description: "Learn how to generate and sell unique cyberpunk-themed digital assets for Zepeto using AI prompts."
 date: "2026-03-25T07:32:08.901930+00:00"
 tags:
   - Cyberpunk
@@ -8,13 +8,13 @@ tags:
   - Zepeto
   - Digital Assets
   - AI Generation
-model: Stable Diffusion
-prompt: Create a futuristic cyberpunk-themed outfit for a Zepeto character, including neon-lit accents, metallic textures, and avant-garde accessories, with a focus on bold, vibrant colors and sleek, high-tech designs.
-negativePrompt: Avoid generating outfits with realistic or historical elements, and do not include any copyrighted or trademarked logos, symbols, or characters.
-sampler: Euler a
+model: "Stable Diffusion"
+prompt: "Create a futuristic cyberpunk-themed outfit for a Zepeto character, including neon-lit accents, metallic textures, and avant-garde accessories, with a focus on bold, vibrant colors and sleek, high-tech designs."
+negativePrompt: "Avoid generating outfits with realistic or historical elements, and do not include any copyrighted or trademarked logos, symbols, or characters."
+sampler: "Euler a"
 cfg: 7.5
 steps: 50
-monetizationTip: Sell your generated cyberpunk cyberwear as exclusive digital assets on online marketplaces like the Zepeto Store or other platforms catering to digital fashion and avatar customization, offering customization options and bundles to attract high-end buyers and collectors.
+monetizationTip: "Sell your generated cyberpunk cyberwear as exclusive digital assets on online marketplaces like the Zepeto Store or other platforms catering to digital fashion and avatar customization, offering customization options and bundles to attract high-end buyers and collectors."
 ---
 
 ## Introduction to Cyberpunk Cyberwear for Zepeto
