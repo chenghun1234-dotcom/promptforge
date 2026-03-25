@@ -79,6 +79,7 @@ def slugify(value: str) -> str:
 
 def ensure_frontmatter(content: str, topic: str, model: str) -> str:
 	if content.lstrip().startswith("---"):
+<<<<<<< HEAD
 		lines = content.splitlines()
 		fm_start = 0
 		fm_end = None
@@ -101,6 +102,9 @@ def ensure_frontmatter(content: str, topic: str, model: str) -> str:
 				lines.insert(fm_end, f'date: "{now}"')
 				fm_end += 1
 			return "\n".join(lines)
+=======
+		return content
+>>>>>>> origin/main
 
 	def escape(value: str) -> str:
 		return value.replace("\\", "\\\\").replace('"', '\\"')
