@@ -1,0 +1,86 @@
+---
+import Layout from '../../layouts/Layout.astro';
+const modules = import.meta.glob('../../content/prompts/*.md', { eager: true });
+const entries = Object.entries(modules).map(([path, mod]: [string, any]) => {
+	const slug = path.split('/').pop()?.replace(/\.md$/, '') ?? 'untitled';
+	return { slug, data: mod.frontmatter, Content: mod.Content };
+});
+const query = Astro.url.searchParams.get('q')?.toLowerCase() ?? '';
+const filtered = entries.filter((e) => {
+	const t = (e.data?.title ?? '').toLowerCase();
+	const d = (e.data?.description ?? '').toLowerCase();
+	const p = (e.data?.prompt ?? '').toLowerCase();
+	const tags = Array.isArray(e.data?.tags) ? e.data.tags.map((x: string) => x.toLowerCase()) : [];
+	if (!query) return true;
+	return t.includes(query) || d.includes(query) || p.includes(query) || tags.some((x: string) => x.includes(query));
+});
+const sorted = filtered
+	.slice()
+	.sort((a, b) => {
+		const aTime = a.data?.date ? new Date(a.data.date).getTime() : 0;
+		const bTime = b.data?.date ? new Date(b.data.date).getTime() : 0;
+		return bTime - aTime;
+	});
+---
+
+<Layout title="Archive | PromptForge" description="Browse all forged prompts and guides">
+	<main class="mx-auto max-w-6xl px-6 py-12 text-slate-100">
+		<header class="mb-8 flex items-end justify-between border-b border-slate-800 pb-4">
+			<h1 class="text-2xl font-bold md:text-3xl">Archive</h1>
+			<form action="/prompts" method="get" class="relative w-full max-w-md">
+				<input
+					type="text"
+					name="q"
+					value={query}
+					placeholder="Search title, tags, prompt..."
+					class="w-full rounded-full border border-slate-700 bg-slate-900 px-6 py-3 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-green-400"
+				/>
+			</form>
+		</header>
+
+		<section class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+			{
+				sorted.length > 0
+					? sorted.map((entry) => (
+							<a
+								href={`/prompts/${entry.slug}`}
+								class="group block overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 shadow-xl backdrop-blur-sm transition-all hover:border-green-400/50"
+							>
+								<div class="relative h-48 overflow-hidden">
+									<img
+										src={
+											entry.data?.image ??
+											'https://via.placeholder.com/600x420/0f172a/666666?text=PromptForge'
+										}
+										alt={entry.data?.title ?? 'Prompt'}
+										class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+										loading="lazy"
+									/>
+									<div class="absolute left-3 top-3 rounded border border-green-400/30 bg-black/70 px-2 py-1 font-mono text-xs font-bold text-green-400 backdrop-blur-md">
+										{entry.data?.model ?? 'LLM Forge'}
+									</div>
+								</div>
+								<div class="p-5">
+									<h3 class="mb-1 text-lg font-bold text-white">{entry.data?.title ?? 'Prompt'}</h3>
+									<p class="text-sm text-slate-400">
+										{entry.data?.description ?? 'Open to view details'}
+									</p>
+									<div class="mt-3 flex flex-wrap gap-2">
+										{
+											(Array.isArray(entry.data?.tags) ? entry.data.tags : []).map((tag: string) => (
+												<span class="rounded-full border border-slate-700 px-2 py-0.5 text-xs text-slate-300">{tag}</span>
+											))
+										}
+									</div>
+								</div>
+							</a>
+					  ))
+					: [
+							<div class="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 text-slate-300">
+								No results. Try a different query.
+							</div>,
+					  ]
+			}
+		</section>
+	</main>
+</Layout>
