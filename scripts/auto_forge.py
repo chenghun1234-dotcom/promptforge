@@ -6,6 +6,9 @@ from datetime import datetime, timezone
 from groq import Groq
 
 
+DEFAULT_MODEL = "llama-3.3-70b-versatile"
+
+
 def get_trending_topics() -> list[str]:
 	return ["Cyberpunk Cyberwear for Zepeto", "Isometric 3D Room for Roblox"]
 
@@ -35,7 +38,7 @@ Frontmatter fields:
 """
 
 	chat_completion = client.chat.completions.create(
-		model=os.environ.get("GROQ_MODEL", "llama3-70b-8192"),
+		model=os.environ.get("GROQ_MODEL", DEFAULT_MODEL),
 		messages=[{"role": "user", "content": prompt}],
 		temperature=float(os.environ.get("GROQ_TEMPERATURE", "0.6")),
 	)
@@ -86,7 +89,7 @@ def main() -> None:
 		raise RuntimeError("GROQ_API_KEY is not set")
 
 	sleep_seconds = float(os.environ.get("GROQ_SLEEP_SECONDS", "10"))
-	model = os.environ.get("GROQ_MODEL", "llama3-70b-8192")
+	model = os.environ.get("GROQ_MODEL", DEFAULT_MODEL)
 	client = Groq(api_key=api_key)
 
 	topics = get_trending_topics()

@@ -28,6 +28,7 @@ jobs:
       - name: Run Auto Forge Script
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_MODEL: llama-3.3-70b-versatile
         run: python scripts/auto_forge.py
 
       - name: Commit and Push New Prompts
