@@ -37,12 +37,36 @@ Frontmatter fields:
 - monetizationTip (string)
 """
 
-	chat_completion = client.chat.completions.create(
-		model=os.environ.get("GROQ_MODEL", DEFAULT_MODEL),
-		messages=[{"role": "user", "content": prompt}],
-		temperature=float(os.environ.get("GROQ_TEMPERATURE", "0.6")),
-	)
-	return chat_completion.choices[0].message.content
+	model = os.environ.get("GROQ_MODEL", DEFAULT_MODEL)
+	temperature = float(os.environ.get("GROQ_TEMPERATURE", "0.6"))
+	max_retries = int(os.environ.get("GROQ_MAX_RETRIES", "3"))
+	default_wait = float(os.environ.get("GROQ_RETRY_DEFAULT_SECONDS", "180"))
+
+	def parse_wait_seconds(message: str) -> float:
+		m = re.search(r"Please try again in (?:(\d+)m)?([0-9.]+)s", message)
+		if m:
+			mins = float(m.group(1) or 0)
+			secs = float(m.group(2) or 0)
+			return mins * 60 + secs
+		return default_wait
+
+	for _ in range(max_retries):
+		try:
+			chat_completion = client.chat.completions.create(
+				model=model,
+				messages=[{"role": "user", "content": prompt}],
+				temperature=temperature,
+			)
+			return chat_completion.choices[0].message.content
+		except Exception as e:
+			msg = str(e)
+			if "rate_limit" in msg or "Rate limit" in msg or "429" in msg:
+				wait = parse_wait_seconds(msg)
+				print(f"Rate limited. Waiting {wait:.1f}s before retry.")
+				time.sleep(wait)
+				continue
+			raise
+	raise RuntimeError("Failed to generate due to rate limits")
 
 
 def slugify(value: str) -> str:
