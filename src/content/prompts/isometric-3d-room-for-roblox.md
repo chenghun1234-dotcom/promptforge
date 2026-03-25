@@ -8,38 +8,32 @@ tags:
   - Digital Assets
   - AI Generation
 model: Stable Diffusion
-prompt: Create an isometric 3D room with modern furniture, large windows, and a cityscape view, suitable for a Roblox game, with a futuristic and sleek design, incorporating neon lights and metallic textures.
-negativePrompt: Avoid generating rooms with clutter, poor lighting, or outdated furniture, and do not include any copyrighted materials or logos.
+prompt: Create a highly detailed isometric 3D room with futuristic furniture and neon lights, suitable for a sci-fi themed Roblox game, with a focus on realistic textures and lighting.
+negativePrompt: Avoid generating rooms with clutter, overly complex designs, or low-poly models, and do not include any copyrighted materials or logos.
 sampler: Euler a
 cfg: 7.5
 steps: 50
-monetizationTip: Sell your isometric 3D rooms as exclusive assets on the Roblox marketplace, or offer them as part of a bundle with other complementary items, such as characters or accessories, to attract high-end game developers and enthusiasts.
+monetizationTip: Sell your isometric 3D rooms as exclusive assets on the Roblox marketplace, or offer custom commissions for game developers looking for unique environments, and consider bundling your assets with other complementary items to increase average sale value.
 ---
 
-## Introduction
-As a professional creator of digital assets for Roblox, you're constantly looking for ways to stay ahead of the curve and provide unique, high-quality content to your customers. One way to do this is by leveraging the power of AI to generate stunning isometric 3D rooms that can be used in a variety of games and applications.
+## Introduction to Isometric 3D Rooms for Roblox
+Isometric 3D rooms are a popular choice for Roblox game developers, offering a unique visual style that combines the benefits of 2D and 3D graphics. By using AI to generate these rooms, pro creators can streamline their workflow, reduce production time, and focus on high-level design decisions.
 
-## Creating Isometric 3D Rooms with AI
-To create an isometric 3D room using AI, you'll need to use a prompt that provides a clear description of the desired output. This includes the style, theme, and specific features you want to include.
+## Crafting the Perfect Prompt
+To get the most out of your AI model, it's essential to craft a well-structured prompt that balances specificity with creativity. The provided `prompt` and `negativePrompt` fields serve as a starting point for your project. Feel free to adjust them according to your artistic vision and project requirements.
 
-### Pro Prompt
-The pro prompt consists of a main prompt and a negative prompt. The main prompt provides a detailed description of the desired output, while the negative prompt specifies what to avoid.
+## Technical Settings for Optimal Results
+The `sampler`, `cfg`, and `steps` fields are crucial in determining the quality and diversity of the generated output. The recommended settings are:
+* `sampler`: Euler a
+* `cfg`: 7.5
+* `steps`: 50
+These settings offer a good balance between detail and coherence, but you may need to experiment with different combinations to find the optimal setup for your specific use case.
 
-* **Main Prompt:** Create an isometric 3D room with modern furniture, large windows, and a cityscape view, suitable for a Roblox game, with a futuristic and sleek design, incorporating neon lights and metallic textures.
-* **Negative Prompt:** Avoid generating rooms with clutter, poor lighting, or outdated furniture, and do not include any copyrighted materials or logos.
+## Monetizing Your Isometric 3D Rooms
+The `monetizationTip` field provides guidance on how to sell your generated assets on the Roblox marketplace. Consider the following strategies:
+* Offer exclusive assets to attract high-end buyers
+* Provide custom commissions for game developers with specific requirements
+* Bundle your assets with other complementary items to increase average sale value
+* Utilize marketing channels, such as social media and online forums, to showcase your creations and reach a broader audience
 
-### Technical Settings
-To achieve the best results, you'll need to adjust the technical settings of your AI model. This includes the sampler, CFG, and steps.
-
-* **Sampler:** Euler a
-* **CFG:** 7.5
-* **Steps:** 50
-
-## Monetization
-Once you've generated your isometric 3D room, you can monetize it by selling it as a digital asset on the Roblox marketplace. Here are a few tips to help you get started:
-
-* **Exclusive Assets:** Sell your isometric 3D rooms as exclusive assets to attract high-end game developers and enthusiasts.
-* **Bundles:** Offer your rooms as part of a bundle with other complementary items, such as characters or accessories, to increase the value and appeal of your assets.
-* **Marketing:** Promote your assets on social media and other online platforms to reach a wider audience and attract potential customers.
-
-By following these tips and using the pro prompt and technical settings provided, you can create stunning isometric 3D rooms for Roblox and monetize them effectively. Remember to always stay up-to-date with the latest trends and developments in the Roblox community to ensure your assets remain competitive and in-demand.
+By following this guide and refining your workflow, you can unlock the full potential of AI-generated isometric 3D rooms for Roblox and establish yourself as a premier creator of digital assets.
