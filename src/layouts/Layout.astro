@@ -15,9 +15,14 @@ const { title, description } = Astro.props;
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="viewport" content="width=device-width" />
+		<meta name="google-site-verification" content="bNE9gUivzDgja3PjbBF1CLxGtDMelObwns4TSFKvkbE" />
+		<meta name='impact-site-verification' value='34d5165e-af69-4b85-95dc-0ff3f703f94d'>
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 		{description ? <meta name="description" content={description} /> : null}
+		<script is:inline>
+			(function(i,m,p,a,c,t){c.ire_o=p;c[p]=c[p]||function(){(c[p].a=c[p].a||[]).push(arguments)};t=a.createElement(m);var z=a.getElementsByTagName(m)[0];t.async=1;t.src=i;z.parentNode.insertBefore(t,z)})('https://utt.impactcdn.com/P-A7137621-a570-40b1-9775-53d63d999d541.js','script','impactStat',document,window);impactStat('transformLinks');impactStat('trackImpression');
+		</script>
 	</head>
 	<body class="bg-slate-950 text-slate-100 min-h-screen">
 		<slot />
