@@ -23,8 +23,49 @@ const { title, description } = Astro.props;
 		<script is:inline>
 			(function(i,m,p,a,c,t){c.ire_o=p;c[p]=c[p]||function(){(c[p].a=c[p].a||[]).push(arguments)};t=a.createElement(m);var z=a.getElementsByTagName(m)[0];t.async=1;t.src=i;z.parentNode.insertBefore(t,z)})('https://utt.impactcdn.com/P-A7137621-a570-40b1-9775-53d63d999d541.js','script','impactStat',document,window);impactStat('transformLinks');impactStat('trackImpression');
 		</script>
+		<script is:inline>
+			window.trackAffiliateClick = function trackAffiliateClick(provider, location, promptId) {
+				try {
+					if (typeof window.gtag === 'function') {
+						window.gtag('event', 'affiliate_click', {
+							provider: provider,
+							location: location,
+							prompt_id: promptId ?? 'global',
+							event_callback: function () {
+								console.log('affiliate_click tracked via GA4');
+							},
+						});
+					}
+
+					if (typeof window.impactStat === 'function') {
+						window.impactStat('trackEvent', 'affiliate_click', {
+							provider: provider,
+							location: location,
+							prompt_id: promptId ?? 'global',
+						});
+					}
+				} catch (error) {
+					console.warn('affiliate_click tracking failed', error);
+				}
+			};
+
+			document.addEventListener('click', function (event) {
+				var target = event.target;
+				if (!(target instanceof Element)) return;
+				var link = target.closest('a[data-affiliate-provider]');
+				if (!(link instanceof HTMLAnchorElement)) return;
+
+				var provider = link.dataset.affiliateProvider || 'unknown';
+				var location = link.dataset.affiliateLocation || 'unknown';
+				var promptId = link.dataset.promptId || 'global';
+				window.trackAffiliateClick(provider, location, promptId);
+			});
+		</script>
 	</head>
 	<body class="bg-slate-950 text-slate-100 min-h-screen">
+		<a href="https://www.creativefabrica.com/freebies/ref/22296047/" target="_blank" rel="noopener noreferrer" data-affiliate-provider="CreativeFabrica" data-affiliate-location="top_nav_freebie" data-prompt-id="global" class="freebie-btn fixed right-4 top-4 z-50 hidden md:inline-flex" style="display: inline-flex; align-items: center; padding: 8px 16px; background: #00d285; color: white; text-decoration: none; border-radius: 50px; font-weight: 600; font-size: 14px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+			<span style="margin-right: 8px;">🎁</span> 오늘만 무료 에셋 받기
+		</a>
 		<slot />
 	</body>
 </html>

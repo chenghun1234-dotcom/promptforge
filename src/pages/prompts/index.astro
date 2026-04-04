@@ -38,7 +38,8 @@ const sorted = filtered
 			</form>
 		</header>
 
-		<section class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+		<div class="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_280px]">
+			<section class="grid grid-cols-1 gap-6 md:grid-cols-2">
 			{
 				sorted.length > 0
 					? sorted.map((entry) => (
@@ -81,6 +82,20 @@ const sorted = filtered
 							</div>,
 					  ]
 			}
-		</section>
+			</section>
+
+			<aside class="lg:sticky lg:top-24 lg:self-start">
+				<div class="sidebar-ad-box" style="margin-bottom: 20px; padding: 15px; background: #2c3e50; border-radius: 12px; text-align: center; color: white;">
+					<span style="font-size: 11px; color: #bdc3c7; display: block; margin-bottom: 5px;">AD / PREMIUM</span>
+					<h4 style="margin: 0 0 10px 0; font-size: 16px; color: #ff414d;">전문가급 AI 프롬프트</h4>
+					<p style="font-size: 12px; line-height: 1.5; color: #ecf0f1; margin-bottom: 15px;">
+						미드저니, 레오나르도 전용<br />상업용 프롬프트 1만개 무제한
+					</p>
+					<a href="https://www.creativefabrica.com/subscriptions/graphics/ai-prompts/ref/22296047/" target="_blank" rel="noopener noreferrer" data-affiliate-provider="CreativeFabrica" data-affiliate-location="sidebar" data-prompt-id="archive" style="display: block; padding: 10px; background: #ff414d; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 13px;">
+						무제한 다운로드 받기
+					</a>
+				</div>
+			</aside>
+		</div>
 	</main>
 </Layout>
