@@ -7,7 +7,9 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "node scripts/validate_affiliate.mjs && astro build",
+    "check:affiliate": "node scripts/validate_affiliate.mjs",
+    "check:health": "node scripts/health_check.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },

@@ -56,67 +56,79 @@ const featured = entries
 				</a>
 			</div>
 
-			<div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+			<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 w-full max-w-7xl mx-auto">
 				{
 					featured.length > 0
 						? featured.map((entry) => (
-								<a
-									href={`/prompts/${entry.slug}`}
-									class="group relative block overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 shadow-xl backdrop-blur-sm transition-all duration-500 hover:-translate-y-2 hover:border-green-400/50 hover:shadow-[0_0_30px_rgba(74,222,128,0.15)]"
-								>
-									<div class="relative h-56 overflow-hidden">
+								<div class="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-800 bg-[#0b1121] shadow-xl transition-all duration-500 hover:-translate-y-2 hover:border-green-400/50 hover:shadow-[0_0_30px_rgba(74,222,128,0.15)]">
+									{/* Stretched link covers the whole card except the button row */}
+									<a href={`/prompts/${entry.slug}`} class="absolute inset-0 z-0" aria-label={entry.data?.title ?? 'View prompt'}></a>
+
+									<div class="relative aspect-video w-full shrink-0 bg-[#111827] overflow-hidden">
 										<img
-											src={
-												entry.data?.image ??
-												'https://via.placeholder.com/600x420/0f172a/666666?text=PromptForge'
-											}
+											src={entry.data?.image ?? "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360'%3E%3Crect width='640' height='360' fill='%23111827'/%3E%3Ctext x='50%25' y='50%25' font-family='monospace' font-size='18' fill='%234b5563' text-anchor='middle' dy='.3em'%3EPromptForge%3C/text%3E%3C/svg%3E"}
 											alt={entry.data?.title ?? 'Prompt'}
-											class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+											class="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
+											onerror="this.src=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360'%3E%3Crect width='640' height='360' fill='%23111827'/%3E%3Ctext x='50%25' y='50%25' font-family='monospace' font-size='18' fill='%234b5563' text-anchor='middle' dy='.3em'%3EPromptForge%3C/text%3E%3C/svg%3E\";this.onerror=null;"
 											loading="lazy"
 										/>
-										<div class="absolute left-3 top-3 rounded border border-green-400/30 bg-black/70 px-2 py-1 font-mono text-xs font-bold text-green-400 backdrop-blur-md">
+										<span class="absolute left-3 top-3 rounded border border-green-700 bg-green-900 px-2 py-1 font-mono text-xs font-bold text-green-300">
 											{entry.data?.model ?? 'LLM Forge'}
-										</div>
-										<div class="absolute right-3 top-3 rounded bg-blue-500/80 px-2 py-1 text-xs font-bold text-white backdrop-blur-md">
+										</span>
+										<span class="absolute right-3 top-3 rounded bg-blue-600 px-2 py-1 text-xs font-bold text-white">
 											Featured
-										</div>
+										</span>
 									</div>
 
-									<div class="p-6">
-										<h4 class="mb-2 text-xl font-bold text-white transition-colors group-hover:text-green-400">
+									<div class="flex flex-col grow p-5">
+										<h4 class="mb-2 line-clamp-2 text-lg font-bold text-white transition-colors group-hover:text-green-400">
 											{entry.data?.title ?? 'Prompt'}
 										</h4>
-										<p class="text-sm text-slate-400">
+										<p class="mb-4 line-clamp-3 text-sm text-slate-400">
 											{entry.data?.description ?? 'Open to view details'}
 										</p>
 
-										<div class="prompt-actions mt-5 flex items-center gap-2 rounded-xl border border-slate-800 bg-black/60 p-3">
-											<code class="min-w-0 flex-1 truncate font-mono text-xs text-slate-400">
+										<div class="mt-auto"></div>
+
+										<div class="relative z-10 flex flex-col gap-2 mt-4">
+											<div class="truncate rounded border border-gray-700 bg-[#111827] p-2 font-mono text-xs text-gray-500">
 												{entry.data?.prompt ?? 'No prompt snippet'}
-											</code>
-											<button
-												type="button"
-												class="btn-copy shrink-0 rounded-lg bg-slate-800 px-2 py-1 text-xs text-slate-100 transition-colors hover:bg-slate-700 disabled:opacity-40"
-												data-copy={entry.data?.prompt ?? ''}
-												disabled={!entry.data?.prompt}
-											>
-												Copy
-											</button>
-											<a href="https://www.creativefabrica.com/studio/ref/22296047/" target="_blank" rel="noopener noreferrer" data-affiliate-provider="CreativeFabrica" data-affiliate-location="copy_button_next" data-prompt-id={entry.slug} style="display: inline-flex; align-items: center; padding: 6px 12px; background: #f3f4f6; border: 1px solid #d1d5db; color: #374151; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 500;">
-												<span style="margin-right: 5px;">🎨</span> 바로 생성해보기
-											</a>
+											</div>
+											<div class="flex gap-2">
+												<button
+													type="button"
+													class="btn-copy flex-1 rounded bg-slate-700 py-2 text-sm text-white transition hover:bg-slate-600 disabled:opacity-40"
+													data-copy={entry.data?.prompt ?? ''}
+													disabled={!entry.data?.prompt}
+												>
+													Copy
+												</button>
+												<a
+													href="https://www.creativefabrica.com/studio/ref/22296047/"
+													target="_blank"
+													rel="noopener noreferrer"
+													data-affiliate-provider="CreativeFabrica"
+													data-affiliate-location="copy_button_next"
+													data-prompt-id={entry.slug}
+													class="relative z-10 shrink-0 whitespace-nowrap rounded bg-white px-4 py-2 text-center text-sm font-bold text-black transition hover:bg-gray-200"
+												>
+													🎨 Try It Now
+												</a>
+											</div>
 										</div>
 									</div>
-								</a>
+								</div>
 						  ))
 						: [
-								<div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 shadow-xl backdrop-blur-sm">
-									<img
-										src="https://via.placeholder.com/600x420/0f172a/666666?text=PromptForge"
-										alt="PromptForge placeholder"
-										class="h-56 w-full object-cover"
-										loading="lazy"
-									/>
+								<div class="flex flex-col min-h-[450px] overflow-hidden rounded-2xl border border-slate-800 bg-[#0b1121] shadow-xl">
+									<div class="aspect-video w-full bg-gray-900">
+										<img
+											src="https://via.placeholder.com/640x360/111827/4b5563?text=No+Image"
+											alt="PromptForge placeholder"
+											class="object-cover w-full h-full"
+											loading="lazy"
+										/>
+									</div>
 									<div class="p-6">
 										<span class="font-mono text-xs text-green-400">LLM Forge</span>
 										<h4 class="mt-2 text-xl font-bold text-white">Your first generated prompt will appear here</h4>

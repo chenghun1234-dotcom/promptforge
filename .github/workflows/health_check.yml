@@ -1,0 +1,29 @@
+name: PromptForge Health Check
+
+on:
+  schedule:
+    - cron: "5 0 * * *"
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  MIN_POST_COUNT: "70"
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Health Check
+        run: npm run check:health

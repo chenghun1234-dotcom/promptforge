@@ -30,5 +30,36 @@ const Content = mod.Content;
 		<article class="space-y-6 leading-relaxed text-slate-200">
 			<Content />
 		</article>
+
+		<section class="mt-12 rounded-xl border border-rose-500/30 bg-slate-900/70 p-6">
+			<h2 class="text-xl font-bold text-white">🚀 추천 리소스</h2>
+			<p class="mt-2 text-sm text-slate-300">
+				프롬프트 결과를 더 빠르게 활용할 수 있는 도구와 프리미엄 프롬프트 번들을 확인해보세요.
+			</p>
+			<div class="mt-4 flex flex-col gap-3 sm:flex-row">
+				<a
+					href="https://www.creativefabrica.com/studio/ref/22296047/"
+					target="_blank"
+					rel="noopener noreferrer"
+					data-affiliate-provider="CreativeFabrica"
+					data-affiliate-location="detail_bottom_cta"
+					data-prompt-id={Astro.params.slug ?? 'unknown'}
+					class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-bold text-black transition hover:bg-gray-200"
+				>
+					🎨 Try in AI Studio
+				</a>
+				<a
+					href="https://www.creativefabrica.com/subscriptions/graphics/ai-prompts/ref/22296047/"
+					target="_blank"
+					rel="noopener noreferrer"
+					data-affiliate-provider="CreativeFabrica"
+					data-affiliate-location="detail_bottom_cta"
+					data-prompt-id={Astro.params.slug ?? 'unknown'}
+					class="inline-flex items-center justify-center rounded-lg bg-rose-500 px-4 py-2 text-sm font-bold text-white transition hover:bg-rose-400"
+				>
+					📦 Get Premium Prompt Pack
+				</a>
+			</div>
+		</section>
 	</main>
 </Layout>
