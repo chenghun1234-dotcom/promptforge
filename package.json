@@ -10,12 +10,18 @@
     "build": "node scripts/validate_affiliate.mjs && astro build",
     "check:affiliate": "node scripts/validate_affiliate.mjs",
     "check:health": "node scripts/health_check.mjs",
-    "preview": "astro preview",
-    "astro": "astro"
+    "preview": "npm run build && wrangler dev",
+    "astro": "astro",
+    "generate-types": "wrangler types",
+    "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^13.5.1",
     "@tailwindcss/vite": "^4.2.2",
     "astro": "^6.0.8",
     "tailwindcss": "^4.2.2"
+  },
+  "devDependencies": {
+    "wrangler": "^4.92.0"
   }
 }
